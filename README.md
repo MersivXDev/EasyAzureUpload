@@ -1,0 +1,2 @@
+# EasyAzureUpload
+Azure upload tool
