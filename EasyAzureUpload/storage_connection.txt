@@ -1,0 +1,1 @@
+storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=mersivxstorage;AccountKey=JHbJVyalTUPaTQKsV2zq/UgBKxzLDjnePIoUkUrLl6BZbh1HSciseTtxFqsSqqgcgERO3sCWVkfh+ASt0O5nzA==;EndpointSuffix=core.windows.net'
