@@ -1,0 +1,8 @@
+Falcomilano=Falcomilano
+FashionDemo=FashionDemo
+Lobby=Lobby
+Mersivx=Mersivx
+Mxshopify=Mxshopify
+NintendoIL=NintendoIL
+SuperMarketDemo=SuperMarketDemo
+AllShops=AllShops

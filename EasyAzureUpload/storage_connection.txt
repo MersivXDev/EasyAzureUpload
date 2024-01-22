@@ -1,1 +1,6 @@
-storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=mersivxstorage;AccountKey=JHbJVyalTUPaTQKsV2zq/UgBKxzLDjnePIoUkUrLl6BZbh1HSciseTtxFqsSqqgcgERO3sCWVkfh+ASt0O5nzA==;EndpointSuffix=core.windows.net'
+dev_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
+operational_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
+test_external_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
+test_internal_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
+
+
