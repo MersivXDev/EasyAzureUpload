@@ -1,0 +1,23 @@
+[StorageConnections]
+dev_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
+avi = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
+
+[CacheControlConfig]
+*.json=no-cache
+*.br=no-transform
+*.gzip=no-transform
+*.html=no-cache
+
+[StoresConfig]
+Falcomilano=Falcomilano
+FalcomilanoQA=FalcomilanoQA
+FashionDemo=FashionDemo
+Lobby=Lobby
+Mersivx=Mersivx
+Mxshopify=Mxshopify
+NintendoIL=NintendoIL
+SuperMarketDemo=SuperMarketDemo
+AllShops=AllShops
+
+[FoldersToIgnore]
+Videos=Videos
