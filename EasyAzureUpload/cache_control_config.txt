@@ -1,2 +1,0 @@
-*.json=no-cache
-*.html=no-cache
