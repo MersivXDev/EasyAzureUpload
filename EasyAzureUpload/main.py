@@ -6,6 +6,10 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 import re
 import fnmatch
+from datetime import datetime
+from azure.core.exceptions import ResourceExistsError, ServiceResponseError
+import socket  # Import the socket library
+
 
 # Global container options
 container_Modes = {
@@ -14,17 +18,7 @@ container_Modes = {
     "Test_External": "test_external",
     "Test_Internal": "test_internal"
 }
-# Global Shop options
-'''Stores = {
-    "Falcomilano": "Falcomilano",
-    "FashionDemo": "FashionDemo",
-    "Lobby": "Lobby",
-    "Mersivx": "Mersivx",
-    "Mxshopify": "Mxshopify",
-    "NintendoIL": "NintendoIL",
-    "SuperMarketDemo": "SuperMarketDemo",
-    "AllShops": "AllShops"
-}'''
+
 # available upload types
 Content_Type = {
     "app + streaming": "app + streaming",
@@ -36,45 +30,120 @@ Content_Type = {
 storage_connection_strings={}
 container_id = '$web'
 
+from azure.storage.blob import BlobClient, BlobServiceClient
+from datetime import datetime
+import os
+
+
+def append_to_log_in_blob(blob_service_client, container_name, log_message):
+    blob_name = 'log.txt'
+    log_file_path = 'log.txt'  # Path to the local log file
+
+    try:
+        # Attempt to download the existing log file from the blob
+        blob_client = blob_service_client.get_blob_client(container=container_id, blob=blob_name)
+        ##blob_obj = blob_service_client.get_blob_client(container=container_id, blob=log.txt)
+
+        with open(log_file_path, "wb") as download_file:
+            download_file.write(blob_client.download_blob().readall())
+    except Exception as e:
+        print(f"No existing log file found or an error occurred: {e}. Creating a new one.")
+
+    # Append the new log message to the log file
+    with open(log_file_path, "a") as log_file:
+        log_file.write(log_message + "\n")
+
+    # Re-upload the updated log file to the blob
+    with open(log_file_path, "rb") as data:
+        blob_client.upload_blob(data, overwrite=True)
+        print("Log file updated and uploaded successfully.")
+
+
+def log_upload_event(blob_service_client, container_name, userPrefs, outcome):
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    machine_name = socket.gethostname()  # Get the machine name
+    if(outcome==True):
+        result = "success"
+    else:
+        result = "failed"
+
+    log_message = f"\n\n\nUpload Time:{timestamp}\nDevice: {machine_name}\nUser prefs: {userPrefs}\nOutcome: {result}"
+
+    # Call the function to append the log message to the blob
+    append_to_log_in_blob(blob_service_client, container_name, log_message)
+
+
 def saveUserSelections(container_name,flag ,store_names , contentType):
     store_names_str = ', '.join(store_names)
 
-    selections = '\ncontainer_name: '+container_name + ';\nStoreName: ' + store_names_str  +';\ncontentType: '+contentType
+    if 'AllShops' in store_names :
+        store = 'AllShops'
+    elif len(store_names) == 0 :
+        store = 'No Store, App changes'
+    else:
+        store = store_names
+
+    selections = f"\nStoreName:{store}\ncontentType: '{contentType}"
+
     print('user selections:' + selections)
+    return selections
 
 def upload_single_file(blob_service_client, file_path, blob_name):
     """
     Upload a single file to the Azure Blob Storage.
     """
     content_type = 'text/html'
-    content_settings = ContentSettings(content_type=content_type, content_encoding='')
+    #content_settings = ContentSettings(content_type=content_type, content_encoding='')
+    file_name = os.path.basename(file_path)
+
+    content_settings = ContentSettings(content_type=content_type, content_encoding='',cache_control=get_cache_control_value(file_name,cache_control))
+
     blob_obj = blob_service_client.get_blob_client(container=container_id, blob=blob_name)
+
     with open(file_path, 'rb') as file_data:
         #blob_obj.upload_blob(file_data, overwrite=True)
         blob_obj.upload_blob(file_data, overwrite=True, content_settings=content_settings)
 
 def get_cache_control_value(file_name, cache_control):
-    for pattern in cache_control.keys():
-        if fnmatch.fnmatch(file_name, pattern):
-            return cache_control[pattern]
-    return None
+    ans = ""
+    # First, check for an exact match
+    if file_name in cache_control:
+        ans = cache_control[file_name]
 
-def uploadFiles(container_name,flag ,selected_stores , contentType):
+    if ans == "":
+        # No exact match found, proceed to check for pattern matches
+        for pattern in cache_control.keys():
+            if fnmatch.fnmatch(file_name, pattern) :
+                ans = cache_control[pattern]
 
+    # If no pattern matches, return None
+    if ans=="":
+        return None
+    else:
+        return ans
+
+def uploadFiles(container_name,flag ,selected_stores , contentType, folders_to_ignore):
     #check if all stores was selected
     IsAllStoreSelected = 'AllShops' in selected_stores
     print("IsAllStoreSelected " + str(IsAllStoreSelected))
 
     #save user selections to log file
-    saveUserSelections(container_name,flag ,selected_stores , contentType)
+    userPrefs = saveUserSelections(container_name,flag ,selected_stores , contentType)
 
     #connect to the container
     connection_string = storage_connection_strings[container_name.lower()]
-    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    blob_service_client = BlobServiceClient.from_connection_string(
+        connection_string,
+        transport_options={
+            'connection_timeout': 300,  # Sets the connection timeout to 90 seconds
+            'read_timeout': 300  # Sets the read timeout to 90 seconds
+        }
+    )
 
     # choose build folder
     folder_path = filedialog.askdirectory(title="Select build Folder")
     print('folder_path '+folder_path)
+
     uploadIndex = False
     if (contentType == 'app (all but streaming assets)' or contentType == 'app + streaming'):
         # Upload the dummy index.html file first
@@ -93,8 +162,11 @@ def uploadFiles(container_name,flag ,selected_stores , contentType):
     for folder_path, subdirectories, files in os.walk(folder_path):
 
         for file_name  in files:
+            folder_path_components = splitall(folder_path)
+            if(any(x in folder_path_components for x in folders_to_ignore)):
+                print("trying to ignore folders")
 
-            if (contentType == 'app (all but streaming assets)' and ('StreamingAssets'.lower() in folder_path.lower())):
+            elif (contentType == 'app (all but streaming assets)' and ('Stores'.lower() in folder_path.lower())):
                 #skip streaming assets in this case
                 print("app (all but streaming assets) - skip streaming assets")
             elif (contentType == 'config only' and not ('Config'.lower() in folder_path.lower())):
@@ -104,14 +176,23 @@ def uploadFiles(container_name,flag ,selected_stores , contentType):
                 # skip everything which is not streaming
                 print("streaming only - skip everything which is not streaming")
             else:
+
                 #if ( (IsAllStoreSelected == False) and ('StreamingAssets'.lower() in folder_path.lower())):
                 if(contentType == 'app (all but streaming assets)' or contentType == 'app + streaming') and file_name.lower() in "index.html":
                     print("skip index file")
+
                     index_folder_path = folder_path
                     index_file_path = os.path.join(folder_path, file_name)
-                elif (not ('Stores'.lower() in folder_path.lower()) ) or IsAllStoreSelected or ( any(store.lower() in folder_path.lower() for store in selected_stores) ):
+                elif (not ('stores' in folder_path.lower())) or IsAllStoreSelected or (
+                        any(store in folder_path_components for store in selected_stores)):
                     store_names_str = ', '.join(selected_stores)
-                    print("### store.lower() " + store_names_str +" ,folderpath "+folder_path.lower())
+                    print("folderpath " + folder_path.lower())
+                #elif (not ('Stores'.lower() in folder_path.lower()) ) or IsAllStoreSelected or ( any(store.lower() in folder_path.lower() for store in selected_stores) ):
+                 #   store_names_str = ', '.join(selected_stores)
+                  #  print("### store.lower() " + store_names_str +" ,folderpath "+folder_path.lower())
+                    # Assuming selected_stores is a list of store names in lowercase
+
+
 
                     try:
                         file_path = os.path.join(folder_path, file_name)
@@ -136,13 +217,20 @@ def uploadFiles(container_name,flag ,selected_stores , contentType):
                             # cache control handling
                             cache_control_value = get_cache_control_value(file_name, cache_control)
 
-
+                            #Handling for gzip
                             if file_name.lower().endswith('.wasm.gz'):
                                 content_type = 'application/wasm'
                                 content_encoding = 'gzip'
                             elif file_name.lower().endswith('.data.gz') or file_name.lower().endswith('.js.gz'):
                                 content_type = 'application/gzip'
                                 content_encoding = 'gzip'
+                            # Handling for brotli
+                            elif file_name.lower().endswith('.wasm.br'):
+                                content_type = 'application/wasm'
+                                content_encoding = 'br'
+                            elif file_name.lower().endswith('.data.br') or file_name.lower().endswith('.js.br'):
+                                content_type = 'application/octet-stream'
+                                content_encoding = 'br'
                             elif file_name.lower().endswith('.json'):
                                 content_type = 'application/json'
                             elif file_name.lower().endswith('.js'):
@@ -171,33 +259,44 @@ def uploadFiles(container_name,flag ,selected_stores , contentType):
 
                             content_settings = ContentSettings(content_type=content_type, content_encoding=content_encoding,cache_control=cache_control_value)
                             blob_obj.upload_blob(file_data, overwrite=True,content_settings=content_settings)
-                            ##blob_obj.upload_blob()
-                            ##blob_obj.upload_blob(file_data)
 
                     except ResourceExistsError as e:
                         print('Blob (file object) {0} already exists.'.format(file_name))
                         continue
                     except Exception as e:
-                        raise Exception(e)
+                        log_upload_event(blob_service_client, container_name, userPrefs, False)
+                        print('Exception: ' ,e)
+                        #raise Exception(e)
 
     if(uploadIndex):
         real_index_path = os.path.join(folder_path, "index.html")
         if os.path.exists(index_file_path):  # Check if the real index.html file exists
             upload_single_file(blob_service_client, index_file_path, "index.html")
+
+
+    #create the log file
+    log_upload_event(blob_service_client, container_name, userPrefs, True)
+
+
     ###
     ### Pop up will jump when done uploading
     ###
-
+    print("\n" + "=" * 40)
+    print("\n" + "=" * 40)
+    print("\n" + "=" * 40)
+    print(" 🚀 UPLOAD COMPLETE 🚀 ")
+    print("=" * 40 + "\n")
+    print("\n" + "=" * 40)
+    print("\n" + "=" * 40)
     messagebox.showinfo("info", "done uploading")
 
 def create_gui():
     window = tk.Tk()
     window.title("Azure Storage Container Management")
-    window.geometry("600x300")  # Increased the height to accommodate the dropdown
+    window.geometry("800x600")  # Increased the height to accommodate the dropdown
 
     # Dropdown menu options
-    options = list(container_Modes.keys())
-    #store_options = list(Stores.keys())
+    options = list(storage_connection_strings.keys())
     Content_options = list(Content_Type.keys())
 
     # Function to update shop selection based on content type
@@ -224,6 +323,20 @@ def create_gui():
 
     store_vars = {}
     checkboxes = {}  # Dictionary to store the checkbox widgets
+
+
+    # Folders to Ignore selection
+    folder_ignore_vars = {}
+    folder_ignore_checkboxes = {}  # Dictionary to store the checkbox widgets for folders to ignore
+
+    container_label_folders = tk.Label(window, text="Folders to Ignore:")
+    container_label_folders.grid(row=0, column=4, padx=10, pady=10)
+
+    for i, folder_name in enumerate(foldersIgnore.keys()):
+        folder_ignore_vars[folder_name] = tk.BooleanVar()
+        chk = tk.Checkbutton(window, text=folder_name, var=folder_ignore_vars[folder_name])
+        chk.grid(row=i, column=5, sticky="w")
+        folder_ignore_checkboxes[folder_name] = chk
 
     def handle_all_stores_toggle():
         is_all_stores_selected = store_vars["AllShops"].get()
@@ -256,11 +369,13 @@ def create_gui():
     def upload_button_command():
         content_type = clicked3.get()
         selected_stores = get_selected_stores()
+        selected_folders_to_ignore = [folder for folder, var in folder_ignore_vars.items() if var.get()]
+
         if content_type != "app (all but streaming assets)" and not selected_stores:
             messagebox.showwarning("Warning", "No stores selected. Please select at least one store.")
             return
         # Proceed with uploading files if stores are selected
-        uploadFiles(clicked.get(), False, selected_stores, content_type)
+        uploadFiles(clicked.get(), False, selected_stores, content_type, selected_folders_to_ignore)
 
         # get the user selection stores
     def get_selected_stores():
@@ -275,26 +390,6 @@ def create_gui():
     window.mainloop()
 
 
-
-def read_storage_connection_string_from_file():
-    current_dir = os.getcwd()
-    filename = "storage_connection.txt"
-    file_path = os.path.join(current_dir, filename)
-
-    with open(file_path, "r") as file:
-        file_contents = file.read()
-
-    connection_strings = {}
-    for line in file_contents.splitlines():
-        match = re.match(r'(\w+)_storage_connection_string\s*=\s*\'(.+?)\'', line)
-        if match:
-            name, connection_string = match.groups()
-            connection_strings[name] = connection_string
-
-    return connection_strings
-
-def change_global_var(streamingAsset_flag):
-    streamingAsset_flag = True
 def splitall(path):
     allparts = []
     while 1:
@@ -310,20 +405,7 @@ def splitall(path):
             allparts.insert(0, parts[1])
     return allparts
 
-def read_stores_from_file():
-    current_dir = os.getcwd()
-    filename = "stores_config.txt"
-    file_path = os.path.join(current_dir, filename)
-    stores = {}
 
-    with open(file_path, "r") as file:
-        for line in file:
-            line = line.strip()
-            if line:
-                key, value = line.split('=')
-                stores[key] = value
-
-    return stores
 
 def read_cache_control_config():
     current_dir = os.getcwd()
@@ -342,14 +424,48 @@ def read_cache_control_config():
 
     return cache_control
 
+def read_combined_config():
+    current_dir = os.getcwd()
+    filename = "config.txt"
+    file_path = os.path.join(current_dir, filename)
+
+    # Initializing dictionaries to hold the configuration
+    config = {
+        "StorageConnections": {},
+        "CacheControlConfig": {},
+        "StoresConfig": {},
+        "FoldersToIgnore": {},
+    }
+
+    current_section = None
+
+    with open(file_path, "r") as file:
+        for line in file:
+            line = line.strip()
+            # Check for section headers
+            if re.match(r'\[.+\]', line):
+                current_section = line.strip('[]')
+            # Check for key-value pairs
+            elif '=' in line and current_section:
+                key, value = line.split('=', 1)
+                config[current_section][key.strip()] = value.strip().strip('\'"')
+
+    return config
 
 if __name__ == "__main__":
-
-    storage_connection_strings = read_storage_connection_string_from_file()
+    '''
+    #storage_connection_strings = read_storage_connection_string_from_file()
+    storage_connection_strings = read_storage_connection_string_from_file2()
     # print(storage_connection_strings)
     Stores = read_stores_from_file()
     # print(Stores)
     cache_control = read_cache_control_config()
+    '''
+    config = read_combined_config()
+    storage_connection_strings = config["StorageConnections"]
+    cache_control = config["CacheControlConfig"]
+    Stores = config["StoresConfig"]
+    foldersIgnore = config["FoldersToIgnore"]
     #print(cache_control)
 
     #blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
