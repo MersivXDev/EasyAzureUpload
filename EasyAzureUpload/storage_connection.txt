@@ -1,4 +1,0 @@
-dev_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
-operational_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
-test_external_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=mersivxuri;AccountKey=CNmwe7xugoPktMsg3u2OZcjpDN9Kqy4QOUmRPDkDozMniRGfrzRzDkAKNaStWwwU7IoH7mT9psmm+AStuQhgIw==;EndpointSuffix=core.windows.net'
-test_internal_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
