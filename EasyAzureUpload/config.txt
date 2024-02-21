@@ -1,6 +1,14 @@
 [StorageConnections]
-dev_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
+uidesigncontainer = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
 avi = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
+centeraldev = 'DefaultEndpointsProtocol=https;AccountName=experiencemersivxdev;AccountKey=nA73SlirIkW4rF+pqq8LuMQB3paxcRuk+BnLH5RV6iSDjZQ4Cd7XG9OI2YXnOdRS1Ih24h4PqP5S+AStf5czew==;EndpointSuffix=core.windows.net'
+qa = 'DefaultEndpointsProtocol=https;AccountName=experienceqa;AccountKey=HrW4p7m6PVRf2rLjF9LN7CeFlhC9i0HrwvV1BnlAwH16RR9bOFOSnkyZonc6Yh1lx4KGbKouVJjl+AStSyGEyw==;EndpointSuffix=core.windows.net'
+staging = 'DefaultEndpointsProtocol=https;AccountName=experiencemersivxstaging;AccountKey=djazxyTOEJ1zmlXv3OPMzuDZIdV3Byt2teu0Y3qMurYVmM+DdOwvY7e5iBGAjKRTISDamOvz1R8e+AStnClLxQ==;EndpointSuffix=core.windows.net'
+haimpersonal = 'DefaultEndpointsProtocol=https;AccountName=haimtests;AccountKey=lTy0wcsh2yTyoWo6qnocNKgmxmVUnwK7XL0hg+/JbnkMWcoScZRvPMbVuXytHXyYyS/z1OQ6xAgJ+AStj2zo0g==;EndpointSuffix=core.windows.net'
+
+
+!!!!operational!!!! ='DefaultEndpointsProtocol=https;AccountName=experiencemerisvx;AccountKey=7lFO1GiQbdsbhd9Lww4f8fml9N8LXGQBko9zm1HquuCcvacsUkNNlpDVBx0ya58vXc/2CF0pU2ZL+AStWCJhDg==;EndpointSuffix=core.windows.net'
+
 
 [CacheControlConfig]
 *.json=no-cache
