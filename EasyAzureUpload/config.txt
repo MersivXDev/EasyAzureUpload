@@ -1,17 +1,22 @@
 [StorageConnections]
 dev_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
 avi = 'DefaultEndpointsProtocol=https;AccountName=uidesign;AccountKey=qwm3JtkF6n4qX9nAWKfnQ/J/8bpJhKN7pJvZqSm8wKjrMPE6wfagxY2hAOZOc3gDIiPHNEjlRtbG+AStKbpTQg==;EndpointSuffix=core.windows.net'
+eladdev = 'DefaultEndpointsProtocol=https;AccountName=eladdev;AccountKey=bwA7obmXqb7BzLNaJQpqLZXAB/6n5WEXzy2cxhRAyjphJR8bw1MuIDkvLimjIbJ+wo/exF/cCPje+AStu2/MVg==;EndpointSuffix=core.windows.net'
+mersivxuri = 'DefaultEndpointsProtocol=https;AccountName=mersivxuri;AccountKey=CNmwe7xugoPktMsg3u2OZcjpDN9Kqy4QOUmRPDkDozMniRGfrzRzDkAKNaStWwwU7IoH7mT9psmm+AStuQhgIw==;EndpointSuffix=core.windows.net'
+mersivxuri2 = 'DefaultEndpointsProtocol=https;AccountName=mersivxuri2;AccountKey=atHnrdfv/7LeyQq28REevr5FxM3tg9KQMYF596UxYQYGq9nu9CuyFmP77VNRxPPMBceinmdX+wRY+ASt/3zTog==;EndpointSuffix=core.windows.net'
 
 [CacheControlConfig]
 *.json=no-cache
 *.br=no-transform
 *.gzip=no-transform
 *.html=no-cache
+WebLoading.js
 
 [StoresConfig]
 Falcomilano=Falcomilano
 FalcomilanoQA=FalcomilanoQA
 FashionDemo=FashionDemo
+IngIL=IngIL
 Lobby=Lobby
 Mersivx=Mersivx
 Mxshopify=Mxshopify
