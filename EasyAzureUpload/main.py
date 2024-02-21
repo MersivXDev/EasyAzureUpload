@@ -253,6 +253,8 @@ def uploadFiles(container_name,flag ,selected_stores , contentType, folders_to_i
                                 content_type = 'text/html'
                             elif file_name.lower().endswith('.css'):
                                 content_type = 'text/css'
+                            elif file_name.lower().endswith('.svg'):
+                                content_type = 'image/svg+xml'
                             else:
                                 print("this file is diff :" + file_name)
                                 content_type = 'application/octet-stream'
