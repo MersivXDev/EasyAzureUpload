@@ -22,7 +22,6 @@ WebLoading.js
 
 [StoresConfig]
 Falcomilano=Falcomilano
-FalcomilanoQA=FalcomilanoQA
 FashionDemo=FashionDemo
 IngIL=IngIL
 Lobby=Lobby
@@ -30,6 +29,9 @@ Mersivx=Mersivx
 Mxshopify=Mxshopify
 NintendoIL=NintendoIL
 SuperMarketDemo=SuperMarketDemo
+Underoutfit=Underoutfit
+Xlab=Xlab
+Yochananof=Yochananof
 AllShops=AllShops
 
 [FoldersToIgnore]

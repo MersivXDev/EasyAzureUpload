@@ -178,12 +178,12 @@ def uploadFiles(container_name,flag ,selected_stores , contentType, folders_to_i
             else:
 
                 #if ( (IsAllStoreSelected == False) and ('StreamingAssets'.lower() in folder_path.lower())):
-                if(contentType == 'app (all but streaming assets)' or contentType == 'app + streaming') and file_name.lower() in "index.html":
-                    print("skip index file")
-
-                    index_folder_path = folder_path
-                    index_file_path = os.path.join(folder_path, file_name)
-                elif (not ('stores' in folder_path.lower())) or IsAllStoreSelected or (
+                # if(contentType == 'app (all but streaming assets)' or contentType == 'app + streaming') and file_name.lower() in "index.html":
+                #     print("skip index file")
+                #
+                #     index_folder_path = folder_path
+                #     index_file_path = os.path.join(folder_path, file_name)
+                if (not ('stores' in folder_path.lower())) or IsAllStoreSelected or (
                         any(store in folder_path_components for store in selected_stores)):
                     store_names_str = ', '.join(selected_stores)
                     print("folderpath " + folder_path.lower())
@@ -270,10 +270,10 @@ def uploadFiles(container_name,flag ,selected_stores , contentType, folders_to_i
                         print('Exception: ' ,e)
                         #raise Exception(e)
 
-    if(uploadIndex):
-        real_index_path = os.path.join(folder_path, "index.html")
-        if os.path.exists(index_file_path):  # Check if the real index.html file exists
-            upload_single_file(blob_service_client, index_file_path, "index.html")
+    # if(uploadIndex):
+    #     real_index_path = os.path.join(folder_path, "index.html")
+    #     if os.path.exists(index_file_path):  # Check if the real index.html file exists
+    #         upload_single_file(blob_service_client, index_file_path, "index.html")
 
 
     #create the log file
