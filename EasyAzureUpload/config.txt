@@ -18,7 +18,9 @@ haimpersonal = 'DefaultEndpointsProtocol=https;AccountName=haimtests;AccountKey=
 *.br=no-transform
 *.gzip=no-transform
 *.html=no-cache
+*.ab=no-cache
 WebLoading.js
+ui=no-cache
 
 [StoresConfig]
 Falcomilano=Falcomilano
