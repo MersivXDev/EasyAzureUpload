@@ -35,6 +35,8 @@ Underoutfit=Underoutfit
 Xlab=Xlab
 Yochananof=Yochananof
 AllShops=AllShops
+DefaultStore=DefaultStore
 
 [FoldersToIgnore]
 Videos=Videos
+
